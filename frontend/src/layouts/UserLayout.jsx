@@ -23,7 +23,7 @@ const UserLayout = () => {
             <aside className='h-[calc(100%-4rem)] bg-gray-200 fixed left-0 top-16'>
                 <SideBar />
             </aside>
-            <main className='flex-1 flex ml-17 items-center justify-center p-8 bg-amber-400'>
+            <main className='flex-1 flex ml-17 items-center justify-center p-8 bg-gray-100'>
                 <Outlet />
             </main>
         </div>

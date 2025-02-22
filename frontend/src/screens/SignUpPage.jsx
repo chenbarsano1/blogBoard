@@ -1,5 +1,4 @@
 import { Link, useNavigate } from 'react-router-dom'
-import Button from '../components/Button'
 import { useState, useEffect } from 'react'
 import {
   EnvelopeIcon,

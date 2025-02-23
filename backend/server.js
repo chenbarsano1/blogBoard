@@ -4,6 +4,7 @@ import { notFound, errorHandler } from './middleware/errorMiddleware.js'
 import connectDB from './config/db.js'
 import cookieParser from 'cookie-parser'
 // import authMiddleware from './middleware/authMiddleware.js'
+import postRoutes from './routes/postRoutes.js'
 
 // set the server port
 const port = process.env.PORT || 5000
@@ -22,6 +23,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 
 app.use('/api/users', userRoutes)
+app.use('/api/posts', postRoutes)
 
 // basic route to check if the server is running
 app.get('/', (req, res) => res.send('Server is ready'))

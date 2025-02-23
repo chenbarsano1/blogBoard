@@ -15,6 +15,7 @@ const loginUser = asyncHandler(async (req, res) => {
     res.status(201).json({
       _id: user._id,
       name: user.name,
+      username: user.username,
       email: user.email,
     })
   } else {
@@ -27,16 +28,26 @@ const loginUser = asyncHandler(async (req, res) => {
 // route    POST /api/users
 // @access  Public
 const signupUser = asyncHandler(async (req, res) => {
-  const { name, email, password } = req.body
+  const name = req.body.name
+  const username = req.body.username.toLowerCase() // Convert username to lowercase
+  const email = req.body.email.toLowerCase() // Convert email to lowercase
+  const password = req.body.password
 
   const userExists = await User.findOne({ email })
   if (userExists) {
     res.status(400)
-    throw new Error('User already exists')
+    throw new Error('Email is already taken')
+  }
+
+  const usernameExists = await User.findOne({ username })
+  if (usernameExists) {
+    res.status(400)
+    throw new Error('Username is already taken')
   }
 
   const user = await User.create({
     name,
+    username,
     email,
     password,
   })
@@ -46,6 +57,7 @@ const signupUser = asyncHandler(async (req, res) => {
     res.status(201).json({
       _id: user._id,
       name: user.name,
+      username: user.username,
       email: user.email,
     })
   } else {
@@ -73,6 +85,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
   const user = {
     _id: req.user._id,
     name: req.user.name,
+    username: req.user.username,
     email: req.user.email,
   }
   res.status(200).json(user)
@@ -82,23 +95,57 @@ const getUserProfile = asyncHandler(async (req, res) => {
 // route    PUT /api/users/profile
 // @access  Private
 const updateUserProfile = asyncHandler(async (req, res) => {
+  console.log('User ID from token:', req.user._id) // Debugging
+  console.log('Request body:', req.body) // Debugging
+
   const user = await User.findById(req.user._id)
-  if (user) {
-    user.name = req.body.name || user.name
-    user.email = req.body.email || user.email
-    if (req.body.password) {
-      user.password = req.body.password
-    }
-    const updatedUser = await user.save()
-    res.status(201).json({
-      _id: updatedUser._id,
-      name: updatedUser.name,
-      email: updatedUser.email,
-    })
-  } else {
+
+  if (!user) {
     res.status(404)
     throw new Error('User not found')
   }
+
+  if (req.body.name) {
+    user.name = req.body.name
+  }
+
+  if (req.body.username && req.body.username.toLowerCase() !== user.username) {
+    const usernameExists = await User.findOne({
+      username: req.body.username.toLowerCase(),
+      _id: { $ne: user._id },
+    })
+    if (usernameExists) {
+      res.status(400)
+      throw new Error('Username is already taken')
+    }
+    user.username = req.body.username.toLowerCase()
+  }
+
+  if (req.body.email && req.body.email.toLowerCase() !== user.email) {
+    const emailExists = await User.findOne({
+      email: req.body.email.toLowerCase(),
+      _id: { $ne: user._id },
+    })
+    if (emailExists) {
+      res.status(400)
+      throw new Error('Email is already taken')
+    }
+    user.email = req.body.email.toLowerCase()
+  }
+
+  if (req.body.password) {
+    user.password = req.body.password
+  }
+
+  console.log('Saving user:', user) // Debugging
+  const updatedUser = await user.save()
+
+  res.status(200).json({
+    _id: updatedUser._id,
+    name: updatedUser.name,
+    username: updatedUser.username,
+    email: updatedUser.email,
+  })
 })
 
 export { loginUser, signupUser, logoutUser, getUserProfile, updateUserProfile }

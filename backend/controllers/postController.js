@@ -1,7 +1,6 @@
 import Post from '../models/postModel.js'
 import User from '../models/userModel.js'
 import jwt from 'jsonwebtoken'
-import mongoose from 'mongoose'
 
 // @desc    Create a new post
 // route    POST /api/posts
@@ -84,9 +83,161 @@ export const getPosts = async (req, res) => {
     const generatedByAI = req.query.generatedByAI // Filter AI-generated posts
 
     if (tags) {
-      const tagsArray = tags.split(',')
-      filter.tags = { $in: tagsArray.map((tag) => new RegExp(tag, 'i')) }
+      // Convert each tag into a case-insensitive regex pattern
+      const tagsArray = tags.split(',').map((tag) => new RegExp(tag, 'i'))
+      filter.$or = tagsArray.map((tag) => ({ tags: tag }))
     }
+
+    if (creator) {
+      // Find the user with the given username
+      const user = await User.findOne({ username: creator }).select('_id')
+      if (user) {
+        filter.creator = user._id
+      } else {
+        // If the user is not found, return an empty array
+        return res.status(200).json({ posts: [] })
+      }
+    }
+
+    if (search) {
+      // Search for posts that contain the search keyword in their title
+      filter.title = new RegExp(search, 'i')
+    }
+
+    if (generatedByAI === 'true') {
+      filter.generatedByAI = true
+    } else if (generatedByAI === 'false') {
+      filter.generatedByAI = false
+    }
+
+    let sortCriteria = { createdAt: -1 }
+    if (sort) {
+      switch (sort) {
+        case 'newest':
+          sortCriteria = { createdAt: -1 }
+          break
+        case 'oldest':
+          sortCriteria = { createdAt: 1 }
+          break
+        case 'popular':
+          sortCriteria = { visit: -1 }
+          break
+        case 'trending':
+          // If multiple posts have the same visit count, they will be sorted by createdAt (newest first).
+          sortCriteria = { visit: -1, createdAt: -1 }
+          filter.createdAt = {
+            // trending: most visited in the last 7 days
+            $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+          }
+          break
+        default:
+          break
+      }
+    }
+
+    const posts = await Post.find(filter)
+      .sort(sortCriteria)
+      .limit(limit)
+      .skip(limit * (page - 1))
+      .populate('creator', 'username')
+
+    // Get the total number of posts that match the filter
+    const totalPosts = await Post.countDocuments(filter)
+
+    // Determine if there are more posts available beyond the current page
+    const hasMore = totalPosts > limit * page
+
+    res.status(200).json({ posts, hasMore })
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ message: 'Server Error', error: error })
+  }
+}
+
+// @desc    Get a single post by slug
+// route    GET /api/posts/:slug
+// @access  Public
+export const getPost = async (req, res) => {
+  try {
+    const slug = req.params.slug
+
+    // Find the post with the given slug
+    const post = await Post.findOne({ slug }).populate('creator', 'username')
+
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' })
+    }
+
+    res.status(200).json(post)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ message: 'Server Error', error: error })
+  }
+}
+
+
+// @desc    Delete a post by id
+// route    DELETE /api/posts/:id
+// @access  Private
+export const deletePost = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: 'Not authenticated' })
+    }
+
+    // extract user ID from the jwt
+    const userId = req.user._id
+
+    // find the post by id
+    const post = await Post.findById(req.params.id)
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' })
+    }
+
+    if (post.creator.toString() === userId.toString()) {
+      await post.deleteOne()
+      return res.status(200).json({ message: 'Post deleted' })
+    }
+
+    return res.status(403).json({ message: 'Not authorized' })
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ message: 'Server Error', error: error })
+  }
+}
+
+// @desc    Update a post by id
+// route    PUT /api/posts/:id
+// @access  Private
+export const updatePost = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: 'Not authenticated' })
+    }
+
+    // extract user ID from the jwt
+    const userId = req.user._id
+
+    // find the post by id
+    const post = await Post.findById(req.params.id)
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' })
+    }
+
+    // Only allow the creator to update the post
+    if (post.creator.toString() === userId.toString()) {
+      post.title = req.body.title || post.title
+      post.content = req.body.content || post.content
+      post.desc = req.body.desc || post.desc
+      post.tags = req.body.tags || post.tags
+      post.generatedByAI = req.body.generatedByAI || post.generatedByAI
+      post.image = req.body.image || post.image
+
+      const updatedPost = await post.save()
+      return res.status(200).json(updatedPost)
+    }
+
+    return res.status(403).json({ message: 'Not authorized' })
   } catch (error) {
     console.error(error)
     res.status(500).json({ message: 'Server Error', error: error })

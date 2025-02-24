@@ -5,9 +5,11 @@ import { useUpdateUserMutation } from '../slices/usersApiSlice'
 import { toast } from 'react-toastify'
 import { setCredentials } from '../slices/authSlice'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
+import { set } from 'mongoose'
 
 const EditProfile = () => {
   const [name, setName] = useState('')
+  const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -23,6 +25,7 @@ const EditProfile = () => {
   useEffect(() => {
     setName(userInfo.name)
     setEmail(userInfo.email)
+    setUsername(userInfo.username)
   }, [userInfo])
 
   const submitHandler = async (e) => {
@@ -32,7 +35,7 @@ const EditProfile = () => {
     } else {
       try {
         const res = await updateUser({
-          data: { name, email, password },
+          data: { name, username, email, password },
         }).unwrap()
         dispatch(setCredentials({ ...res }))
         toast.success('Profile updated successfully!')
@@ -63,13 +66,20 @@ const EditProfile = () => {
           className="w-full border-b border-gray-300 focus:border-blue-600 px-2 py-3 outline-none mb-4"
         />
         <input
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          className="w-full border-b border-gray-300 focus:border-blue-600 px-2 py-3 outline-none mb-4"
+        />
+        <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="w-full border-b border-gray-300 focus:border-blue-600 px-2 py-3 outline-none mb-4"
         />
-        <div>
+        <div className='relative'>
           <input
             type={showPassword ? 'text' : 'password'}
             placeholder="Password"
@@ -79,7 +89,7 @@ const EditProfile = () => {
           />
           <button
             type="button"
-            className="absolute top-1/2 right-2.5 -translate-y-1/2 cursor-pointer text-gray-400 hover:text-gray-500"
+            className="absolute top-1/3 right-2.5 -translate-y-1/2 cursor-pointer text-gray-400 hover:text-gray-500"
             onClick={() => setShowPassword((prev) => !prev)}
           >
             {showPassword ? (

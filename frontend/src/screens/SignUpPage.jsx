@@ -8,9 +8,11 @@ import {
 import { useDispatch, useSelector } from 'react-redux'
 import { useSignupMutation } from '../slices/usersApiSlice'
 import { setCredentials } from '../slices/authSlice'
+import { toast } from 'react-toastify'
 
 const SignUpPage = () => {
   const [name, setName] = useState('')
+  const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -35,11 +37,12 @@ const SignUpPage = () => {
       console.log('Passwords do not match')
     } else {
       try {
-        const res = await signUp({ name, email, password }).unwrap()
+        const res = await signUp({ name, username, email, password }).unwrap()
         dispatch(setCredentials({ ...res }))
         navigate('/')
       } catch (err) {
         console.error(err)
+        toast.error(err?.data?.message || 'Something went wrong')
       }
     }
   }
@@ -81,6 +84,17 @@ const SignUpPage = () => {
                 placeholder="Enter your name"
                 onChange={(e) => setName(e.target.value)}
                 value={name}
+                required
+              />
+            </div>
+
+            <div className="relative">
+              <input
+                type="text"
+                className="w-full text-sm border-b border-gray-300 focus:border-blue-600 px-2 py-3 outline-none"
+                placeholder="Enter your username"
+                onChange={(e) => setUsername(e.target.value)}
+                value={username}
                 required
               />
             </div>

@@ -9,8 +9,10 @@ import postRoutes from './routes/postRoutes.js'
 // set the server port
 const port = process.env.PORT || 5000
 
-// connect to MongoDB database
-connectDB()
+// connect to MongoDB database only if not in a test environment
+if (process.env.NODE_ENV !== 'test') {
+  connectDB()
+}
 
 // initialize an Express application
 const app = express()
@@ -31,4 +33,8 @@ app.get('/', (req, res) => res.send('Server is ready'))
 app.use(notFound) // catch 404 errors (route is not found)
 app.use(errorHandler) // handle all errors
 
-app.listen(port, () => console.log(`Server started on port ${port}`))
+export default app
+
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(port, () => console.log(`Server started on port ${port}`))
+}

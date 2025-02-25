@@ -21,31 +21,16 @@ const LoginPage = () => {
 
   const [login, { isLoading }] = useLoginMutation()
 
-  const { userInfo } = useSelector((state) => state.auth)
-
-  useEffect(() => {
-    // console.log('userInfo:', userInfo)
-    console.log('useEffect triggered! userInfo:', userInfo)
-    if (userInfo) {
-      console.log('Navigating to home...')
-      navigate('/', { replace: true })
-    }
-  }, [userInfo, navigate])
-
   const submitHandler = async (e) => {
     e.preventDefault()
     try {
       const res = await login({ email, password }).unwrap()
-      console.log('Login API response:', res) // 👀 Check what the API returns
       dispatch(setCredentials({ ...res }))
-      console.log('Updated Redux state:', res) // 👀 Should match userInfo in Redux
       navigate('/', { replace: true })
     } catch (err) {
       toast.error(err?.data?.message || err.error)
     }
   }
-
-  console.log('🔄 Current userInfo in component:', userInfo)
   
   return (
     <div className="min-h-screen flex flex-col items-center justify-center py-6 px-4 bg-gradient-to-b from-green-50 to-green-100">

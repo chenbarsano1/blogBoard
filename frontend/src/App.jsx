@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import HomePage from './screens/HomePage'
 import LandingPage from './screens/LandingPage'
 import SignUpPage from './screens/SignUpPage'
@@ -21,26 +21,20 @@ const App = () => {
     <div className="flex flex-col h-screen">
       <ToastContainer />
       <Routes>
-        {/* <Route path="/" element={userInfo ? <HomePage /> : <LandingPage />} />
-        <Route path='/login' element={<LoginPage />} />
-        <Route path='/signup' element={<SignUpPage />} /> */}
+        <Route element={<LandingLayout />}>
+          <Route path="/" element={!userInfo ? <LandingPage /> : <Navigate to="/home" />} />
+          <Route path="/login" element={!userInfo ? <LoginPage /> : <Navigate to="/home" />} />
+          <Route path="/signup" element={!userInfo ? <SignUpPage /> : <Navigate to="/home" />} />
+        </Route>
 
-        {!userInfo ? (
-          <Route element={<LandingLayout />}>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignUpPage />} />
-          </Route>
-        ) : (
-          <Route element={<UserLayout />}>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/profile/edit" element={<EditProfile />} />
-            <Route path="/create-post" element={<CreatePost />} />
-            <Route path="/your-posts" element={<YourPosts />} />
-            <Route path="/saved-posts" element={<SavedPosts />} />
-          </Route>
-        )}
+        <Route element={<UserLayout />}>
+          <Route path="/home" element={userInfo ? <HomePage /> : <Navigate to="/login" />} />
+          <Route path="/profile" element={userInfo ? <ProfilePage /> : <Navigate to="/login" />} />
+          <Route path="/profile/edit" element={userInfo ? <EditProfile /> : <Navigate to="/login" />} />
+          <Route path="/create-post" element={userInfo ? <CreatePost /> : <Navigate to="/login" />} />
+          <Route path="/your-posts" element={userInfo ? <YourPosts /> : <Navigate to="/login" />} />
+          <Route path="/saved-posts" element={userInfo ? <SavedPosts /> : <Navigate to="/login" />} />
+        </Route>
       </Routes>
     </div>
   )

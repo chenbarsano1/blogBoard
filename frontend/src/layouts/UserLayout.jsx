@@ -15,15 +15,15 @@ const UserLayout = () => {
     //     </main>
     //   </div>
     // </div>
-    <div className='h-screen flex flex-col'>
-        <header className='h-16 w-full bg-black text-white fixed top-0 left-0 z-10'>
+    <div className='h-screen flex flex-col bg-gray-100'>
+        <header className=' w-full bg-black text-white fixed top-0 left-0 z-10'>
             <HeaderLoggedIn />
         </header>
-        <div className='flex flex-1 pt-16'>
-            <aside className='h-[calc(100%-4rem)] bg-gray-200 fixed left-0 top-16'>
+        <div className='flex flex-1 pt-[calc(10vh)]'>
+            <aside className='h-[90vh] fixed left-0 top-[calc(10vh)]'>
                 <SideBar />
             </aside>
-            <main className='flex-1 flex ml-17 items-center justify-center p-8 bg-gray-100'>
+            <main className='flex-1 flex ml-16 items-center justify-center bg-gray-100'>
                 <Outlet />
             </main>
         </div>

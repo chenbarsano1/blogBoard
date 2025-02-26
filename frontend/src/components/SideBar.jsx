@@ -15,60 +15,58 @@ const SideBar = () => {
   const location = useLocation()
 
   return (
-    
-      <nav className="h-full flex flex-col bg-white shadow-sm items-center">
-        {/* Sidebar Content */}
-        <ul className="flex-1 px-4 py-4 items-center flex flex-col gap-12">
-          {/* Home Icon */}
-          <li className="relative group">
-            <Link to="/">
-              {location.pathname === '/' ? (
-                <HomeSolid className="size-8 cursor-pointer" />
-              ) : (
-                <HomeOutline className="size-8 cursor-pointer" />
-              )}
-              {/* <HomeIcon className="size-8 cursor-pointer" /> */}
-              <span className="absolute left-10 top-1/2 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                Home
-              </span>
-            </Link>
-          </li>
-
-          {/* Create Icon */}
-          <li className="relative group">
-            {location.pathname === '/create' ? (
-              <PlusSolid className="size-8 cursor-pointer" />
+    <nav className="h-full flex flex-col bg-amber-300 shadow-sm items-center max-w-16">
+      {/* Sidebar Content */}
+      <ul className="flex-1 px-4 py-4 items-center flex flex-col gap-12">
+        {/* Home Icon */}
+        <li className="relative group">
+          <Link to="/home">
+            {location.pathname === '/home' ? (
+              <HomeSolid className="size-8 cursor-pointer" />
             ) : (
-              <PlusOutline className="size-8 cursor-pointer" />
+              <HomeOutline className="size-8 cursor-pointer" />
             )}
-            <span className="absolute left-10 top-1/2 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-              Create
-            </span>
-          </li>
+            {/* <HomeIcon className="size-8 cursor-pointer" /> */}
+          </Link>
+          <span className="absolute left-10 top-1/2 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+            Home
+          </span>
+        </li>
 
-          {/* Notifications Icon */}
-          <li className="relative group">
-            {location.pathname === '/notifications' ? (
-              <BellSolid className="size-8 cursor-pointer" />
-            ) : (
-              <BellOutline className="size-8 cursor-pointer" />
-            )}
-            <span className="absolute left-10 top-1/2 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-              Notifications
-            </span>
-          </li>
-        </ul>
+        {/* Create Icon */}
+        <li className="relative group">
+          {location.pathname === '/create' ? (
+            <PlusSolid className="size-8 cursor-pointer" />
+          ) : (
+            <PlusOutline className="size-8 cursor-pointer" />
+          )}
+          <span className="absolute left-10 top-1/2 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+            Create
+          </span>
+        </li>
 
-        {/* User Info Section */}
-        <div className="border-t flex p-3 items-center">
-          <img
-            src="https://randomuser.me/api/portraits/men/1.jpg"
-            alt="User"
-            className="w-8 h-8 rounded-full"
-          />
-        </div>
-      </nav>
-    
+        {/* Notifications Icon */}
+        <li className="relative group">
+          {location.pathname === '/notifications' ? (
+            <BellSolid className="size-8 cursor-pointer" />
+          ) : (
+            <BellOutline className="size-8 cursor-pointer" />
+          )}
+          <span className="absolute left-10 top-1/2 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+            Notifications
+          </span>
+        </li>
+      </ul>
+
+      {/* User Info Section */}
+      <div className="border-t flex p-3 items-center">
+        <img
+          src="https://randomuser.me/api/portraits/men/1.jpg"
+          alt="User"
+          className="w-8 h-8 rounded-full"
+        />
+      </div>
+    </nav>
   )
 }
 

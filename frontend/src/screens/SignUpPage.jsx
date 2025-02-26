@@ -48,7 +48,7 @@ const SignUpPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center py-6 px-4 bg-gradient-to-b from-green-50 to-green-100">
+    <div className="flex flex-col flex-grow items-center justify-center py-6 px-4 bg-gradient-to-b from-green-50 to-green-100">
       <div className="grid md:grid-cols-2 items-center gap-10 max-w-6xl max-md:max-w-md w-full">
         {/* Left Section - Login Description */}
         <div>

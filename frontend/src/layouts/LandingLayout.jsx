@@ -3,11 +3,10 @@ import HeaderLoggedOut from '../components/HeaderLoggedOut'
 
 const LandingLayout = () => {
   return (
-    <div>
+    <div className="h-screen flex flex-col">
       <HeaderLoggedOut />
-      <main>
-        <Outlet />
-      </main>
+
+      <Outlet />
     </div>
   )
 }

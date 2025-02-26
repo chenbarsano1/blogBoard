@@ -22,7 +22,7 @@ const HomePage = () => {
     }
   }
   return (
-    <div className="p-4 w-full flex flex-col items-center">
+    <div className="p-4 w-full flex flex-col items-center bg-amber-700">
       <h1 className="mt-5 mb-5 text-8xl font-bold">For you</h1>
       <p className="mb-5">This is the homepage content.</p>
       <div className='w-full mx-auto px-4'>

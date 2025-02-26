@@ -1,3 +1,4 @@
+import mongoose from 'mongoose'
 import Post from '../models/postModel.js'
 import User from '../models/userModel.js'
 import jwt from 'jsonwebtoken'
@@ -185,6 +186,11 @@ export const deletePost = async (req, res) => {
       return res.status(401).json({ message: 'Not authenticated' })
     }
 
+    // Validate ObjectId format before querying
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid post ID' })
+    }
+
     // extract user ID from the jwt
     const userId = req.user._id
 
@@ -213,6 +219,11 @@ export const updatePost = async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({ message: 'Not authenticated' })
+    }
+
+    // Validate ObjectId format before querying
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid post ID' })
     }
 
     // extract user ID from the jwt

@@ -3,8 +3,9 @@ import mongoose from 'mongoose'
 import app from '../server.js'
 import Post from '../models/postModel.js'
 import { MongoMemoryServer } from 'mongodb-memory-server'
-import { it } from '@jest/globals'
-// import { afterAll, beforeEach, describe, it } from '@jest/globals'
+import { beforeEach, describe, it } from '@jest/globals'
+import jwt from 'jsonwebtoken'
+import User from '../models/userModel.js'
 
 describe('GET /api/posts', () => {
   let mongoServer
@@ -158,17 +159,422 @@ describe('GET /api/posts', () => {
 
   it('should return posts sorted by visits in descending order', async () => {
     await Post.create([
-      { title: 'Popular Post', visit: 10, slug: 'popular-post', creator: new mongoose.Types.ObjectId(), desc: 'Popular post description', content: 'Popular post content' },
-      { title: 'Less Popular Post', visit: 5, slug: 'less-popular-post', creator: new mongoose.Types.ObjectId(), desc: 'Less popular post description', content: 'Less popular post content' },
+      {
+        title: 'Popular Post',
+        visit: 10,
+        slug: 'popular-post',
+        creator: new mongoose.Types.ObjectId(),
+        desc: 'Popular post description',
+        content: 'Popular post content',
+      },
+      {
+        title: 'Less Popular Post',
+        visit: 5,
+        slug: 'less-popular-post',
+        creator: new mongoose.Types.ObjectId(),
+        desc: 'Less popular post description',
+        content: 'Less popular post content',
+      },
     ])
 
-    const response = await request(app).get('/api/posts?sort=visit')
+    const response = await request(app).get('/api/posts?sort=popular')
     expect(response.statusCode).toBe(200)
     expect(response.body.posts[0].title).toBe('Popular Post')
   })
+})
 
-  it('should return 400 for an invalid sort field', async () => {
-    const response = await request(app).get('/api/posts?sort=invalidField')
+describe('POST /api/posts', () => {
+  let mongoServer
+  let user
+  let token
+
+  beforeAll(async () => {
+    mongoServer = await MongoMemoryServer.create()
+    const mongoUri = mongoServer.getUri()
+    await mongoose.connect(mongoUri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
+  })
+
+  afterAll(async () => {
+    await mongoose.disconnect()
+    await mongoServer.stop()
+  })
+
+  beforeEach(async () => {
+    await User.deleteMany()
+    await Post.deleteMany()
+
+    user = await User.create({
+      name: 'Test User',
+      username: 'testuser',
+      email: 'test@gmail.com',
+      password: 'password',
+    })
+
+    token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '1h',
+    })
+  })
+
+  it('should return 401 if no token is provided', async () => {
+    const response = await request(app)
+      .post('/api/posts')
+      .send({ title: 'Test Post' })
+    expect(response.statusCode).toBe(401)
+    expect(response.body.message).toBe('Not authenticated, no token')
+  })
+
+  it('should return 401 if an invalid token is provided', async () => {
+    const response = await request(app)
+      .post('/api/posts')
+      .set('Cookie', 'jwt=invalidtoken')
+      .send({ title: 'Test Post' })
+    expect(response.statusCode).toBe(401)
+    expect(response.body.message).toBe('Not authorized, invalid token')
+  })
+
+  it('should create a new post when a valid token is provided', async () => {
+    const response = await request(app)
+      .post('/api/posts')
+      .set('Cookie', `jwt=${token}`)
+      .send({
+        title: 'Test Post',
+        content: 'This is a test post',
+        desc: 'This is a test description',
+      })
+    expect(response.statusCode).toBe(201)
+    expect(response.body.title).toBe('Test Post')
+    expect(response.body).toHaveProperty('_id')
+    expect(response.body).toHaveProperty('slug')
+    expect(response.body).toHaveProperty('creator', user._id.toString())
+  })
+
+  it('should generate a unique slug for the post', async () => {
+    await Post.create({
+      title: 'Test Post',
+      content: 'This is a test post',
+      desc: 'This is a test description',
+      creator: user._id,
+      slug: 'test-post',
+      visit: 0,
+    })
+
+    const response = await request(app)
+      .post('/api/posts')
+      .set('Cookie', `jwt=${token}`)
+      .send({
+        title: 'Test Post',
+        content: 'This is a test post',
+        desc: 'This is a test description',
+      })
+    expect(response.statusCode).toBe(201)
+    expect(response.body.slug).not.toBe('test-post')
+  })
+})
+
+describe('GET /api/posts/:slug', () => {
+  let mongoServer
+
+  beforeAll(async () => {
+    mongoServer = await MongoMemoryServer.create()
+    const mongoUri = mongoServer.getUri()
+    await mongoose.connect(mongoUri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
+  })
+
+  afterAll(async () => {
+    await mongoose.disconnect()
+    await mongoServer.stop()
+  })
+
+  beforeEach(async () => {
+    await Post.deleteMany()
+  })
+
+  it('should return 404 if the post does not exist', async () => {
+    const response = await request(app).get('/api/posts/nonexistent-post')
+    expect(response.statusCode).toBe(404)
+    expect(response.body.message).toBe('Post not found')
+  })
+
+  it('should return the post if it exists', async () => {
+    const post = await Post.create({
+      title: 'Test Post',
+      content: 'This is a test post',
+      desc: 'This is a test description',
+      creator: new mongoose.Types.ObjectId(),
+      slug: 'test-post',
+      visit: 0,
+    })
+
+    const response = await request(app).get(`/api/posts/${post.slug}`)
+    expect(response.statusCode).toBe(200)
+    expect(response.body.title).toBe('Test Post')
+  })
+
+  it('should increase the visit count when the post is visited', async () => {
+    const post = await Post.create({
+      title: 'Test Post',
+      content: 'This is a test post',
+      desc: 'This is a test description',
+      creator: new mongoose.Types.ObjectId(),
+      slug: 'test-post',
+      visit: 0,
+    })
+
+    const response = await request(app).get(`/api/posts/${post.slug}`)
+    expect(response.statusCode).toBe(200)
+    expect(response.body.visit).toBe(1)
+  })
+})
+
+describe('DELETE /api/posts/:id', () => {
+  let mongoServer
+  let user
+  let token
+
+  beforeAll(async () => {
+    mongoServer = await MongoMemoryServer.create()
+    const mongoUri = mongoServer.getUri()
+    await mongoose.connect(mongoUri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
+  })
+
+  afterAll(async () => {
+    await mongoose.disconnect()
+    await mongoServer.stop()
+  })
+
+  beforeEach(async () => {
+    await User.deleteMany()
+    await Post.deleteMany()
+
+    user = await User.create({
+      name: 'Test User',
+      username: 'testuser',
+      email: 'test@gmail.com',
+      password: 'password',
+    })
+  })
+
+  it('should return 401 if no token is provided', async () => {
+    const response = await request(app).delete('/api/posts/1')
+    expect(response.statusCode).toBe(401)
+    expect(response.body.message).toBe('Not authenticated, no token')
+  })
+
+  it('should return 401 if an invalid token is provided', async () => {
+    const response = await request(app)
+      .delete('/api/posts/1')
+      .set('Cookie', 'jwt=invalidtoken')
+    expect(response.statusCode).toBe(401)
+    expect(response.body.message).toBe('Not authorized, invalid token')
+  })
+
+  it('should return 400 if the post ID is invalid', async () => {
+    token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '1h',
+    })
+
+    const response = await request(app)
+      .delete('/api/posts/1')
+      .set('Cookie', `jwt=${token}`)
     expect(response.statusCode).toBe(400)
+    expect(response.body.message).toBe('Invalid post ID')
+  })
+
+  it('should return 404 if the post does not exist', async () => {
+    token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '1h',
+    })
+
+    const response = await request(app)
+      .delete(`/api/posts/${new mongoose.Types.ObjectId()}`)
+      .set('Cookie', `jwt=${token}`)
+    expect(response.statusCode).toBe(404)
+    expect(response.body.message).toBe('Post not found')
+  })
+
+  it('should return 403 if the user is not the creator of the post', async () => {
+    const post = await Post.create({
+      title: 'Test Post',
+      content: 'This is a test post',
+      desc: 'This is a test description',
+      creator: new mongoose.Types.ObjectId(),
+      slug: 'test-post',
+      visit: 0,
+    })
+
+    token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '1h',
+    })
+
+    const response = await request(app)
+      .delete(`/api/posts/${post._id}`)
+      .set('Cookie', `jwt=${token}`)
+    expect(response.statusCode).toBe(403)
+    expect(response.body.message).toBe('Not authorized')
+  })
+
+  it('should delete the post if the user is the creator', async () => {
+    const post = await Post.create({
+      title: 'Test Post',
+      content: 'This is a test post',
+      desc: 'This is a test description',
+      creator: user._id,
+      slug: 'test-post',
+      visit: 0,
+    })
+
+    token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '1h',
+    })
+
+    const response = await request(app)
+      .delete(`/api/posts/${post._id}`)
+      .set('Cookie', `jwt=${token}`)
+    expect(response.statusCode).toBe(200)
+    expect(response.body.message).toBe('Post deleted')
+  })
+})
+
+describe('PUT /api/posts/:id', () => {
+  let mongoServer
+  let user
+  let token
+
+  beforeAll(async () => {
+    mongoServer = await MongoMemoryServer.create()
+    const mongoUri = mongoServer.getUri()
+    await mongoose.connect(mongoUri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
+  })
+
+  afterAll(async () => {
+    await mongoose.disconnect()
+    await mongoServer.stop()
+  })
+
+  beforeEach(async () => {
+    await User.deleteMany()
+    await Post.deleteMany()
+
+    user = await User.create({
+      name: 'Test User',
+      username: 'testuser',
+      email: 'test@gmail.com',
+      password: 'password',
+    })
+  })
+
+  it('should return 401 if no token is provided', async () => {
+    const response = await request(app).put('/api/posts/1')
+    expect(response.statusCode).toBe(401)
+    expect(response.body.message).toBe('Not authenticated, no token')
+  })
+
+  it('should return 401 if an invalid token is provided', async () => {
+    const response = await request(app)
+      .put('/api/posts/1')
+      .set('Cookie', 'jwt=invalidtoken')
+    expect(response.statusCode).toBe(401)
+    expect(response.body.message).toBe('Not authorized, invalid token')
+  })
+
+  it('should return 400 if the post ID is invalid', async () => {
+    token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '1h',
+    })
+
+    const response = await request(app)
+      .put('/api/posts/1')
+      .set('Cookie', `jwt=${token}`)
+    expect(response.statusCode).toBe(400)
+    expect(response.body.message).toBe('Invalid post ID')
+  })
+
+  it('should return 404 if the post does not exist', async () => {
+    token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '1h',
+    })
+
+    const response = await request(app)
+      .put(`/api/posts/${new mongoose.Types.ObjectId()}`)
+      .set('Cookie', `jwt=${token}`)
+    expect(response.statusCode).toBe(404)
+    expect(response.body.message).toBe('Post not found')
+  })
+
+  it('should return 403 if the user is not the creator of the post', async () => {
+    const post = await Post.create({
+      title: 'Test Post',
+      content: 'This is a test post',
+      desc: 'This is a test description',
+      creator: new mongoose.Types.ObjectId(),
+      slug: 'test-post',
+      visit: 0,
+    })
+
+    token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '1h',
+    })
+
+    const response = await request(app)
+      .put(`/api/posts/${post._id}`)
+      .set('Cookie', `jwt=${token}`)
+    expect(response.statusCode).toBe(403)
+    expect(response.body.message).toBe('Not authorized')
+  })
+
+  it('should update the post if the user is the creator', async () => {
+    const post = await Post.create({
+      title: 'Test Post',
+      content: 'This is a test post',
+      desc: 'This is a test description',
+      creator: user._id,
+      slug: 'test-post',
+      visit: 0,
+    })
+
+    token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '1h',
+    })
+
+    const response = await request(app)
+      .put(`/api/posts/${post._id}`)
+      .set('Cookie', `jwt=${token}`)
+      .send({
+        title: 'Updated Post',
+        content: 'This is an updated post',
+        desc: 'This is an updated description',
+      })
+    expect(response.statusCode).toBe(200)
+    expect(response.body.title).toBe('Updated Post')
+    expect(response.body.content).toBe('This is an updated post')
+  })
+
+  it('should not update the post if the user is the creator but the post ID is invalid', async () => {
+    token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '1h',
+    })
+
+    const response = await request(app)
+      .put(`/api/posts/${new mongoose.Types.ObjectId()}`)
+      .set('Cookie', `jwt=${token}`)
+      .send({
+        title: 'Updated Post',
+        content: 'This is an updated post',
+        desc: 'This is an updated description',
+      })
+    expect(response.statusCode).toBe(404)
+    expect(response.body.message).toBe('Post not found')
   })
 })

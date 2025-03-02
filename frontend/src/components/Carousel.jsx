@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import Image from './Image'
 
 const Carousel = ({ posts }) => {
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -17,23 +18,35 @@ const Carousel = ({ posts }) => {
     setCurrentIndex(index)
   }
 
+  if (!posts || posts.length === 0) {
+    return <div>Loading posts...</div>
+  }
+  console.log(posts.map((post) => post.image))
+
   return (
-    <div className="relative w-full">
+    <div className="relative w-full ">
       {/* Carousel wrapper */}
-      <div className="relative h-56 md:h-96 bg-gray-100 rounded-lg flex items-center justify-center p-6">
+      <div className="relative h-[50vh] bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center p-6">
         {posts.map((post, index) => (
           <div
             key={post._id}
-            className={`absolute w-full h-full flex flex-col justify-center items-center transition-opacity duration-700 ${
+            className={`absolute w-full h-full flex flex-col justify-center items-center bg-cover bg-center transition-opacity duration-700 ${
               index === currentIndex ? 'opacity-100' : 'opacity-0'
             }`}
           >
-            <h3 className="text-xl font-bold text-center">{post.title}</h3>
-            <p className="text-gray-700 text-sm text-center mt-2">
+            <Image
+              src={post.image}
+              alt={post.title}
+              className="absolute top-0 left-0 w-full h-full object-cover bg-cover bg-center"
+            />
+            <h3 className="text-xl font-bold text-center relative">{post.title}</h3>
+            <p className="text-gray-700 text-sm text-center mt-2 relative">
               {post.desc}
             </p>
-            <p className="text-gray-500 text-xs mt-1">By @{post.creator?.username}</p>
-            <div className="mt-2 flex flex-wrap justify-center">
+            <p className="text-gray-500 text-xs mt-1 relative">
+              By @{post.creator?.username}
+            </p>
+            <div className="mt-2 flex flex-wrap justify-center relative">
               {post.tags.map((tag, i) => (
                 <span
                   key={i}
@@ -48,7 +61,7 @@ const Carousel = ({ posts }) => {
       </div>
 
       {/* Slider indicators */}
-      <div className="absolute z-30 flex bottom-5 left-1/2 -translate-x-1/2 space-x-3">
+      <div className="absolute flex bottom-5 left-1/2 -translate-x-1/2 space-x-3">
         {posts.map((_, index) => (
           <button
             key={index}
@@ -62,7 +75,7 @@ const Carousel = ({ posts }) => {
 
       {/* Slider controls */}
       <button
-        className="absolute top-0 left-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none"
+        className="absolute top-0 left-0 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none"
         onClick={prevSlide}
       >
         <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gray-400 hover:bg-gray-600">
@@ -85,7 +98,7 @@ const Carousel = ({ posts }) => {
       </button>
 
       <button
-        className="absolute top-0 right-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none"
+        className="absolute top-0 right-0 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none"
         onClick={nextSlide}
       >
         <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gray-400 hover:bg-gray-600">

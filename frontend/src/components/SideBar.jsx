@@ -15,7 +15,7 @@ const SideBar = () => {
   const location = useLocation()
 
   return (
-    <nav className="h-full flex flex-col bg-amber-300 shadow-sm items-center max-w-16">
+    <nav className="h-full flex flex-col bg-white shadow-sm items-center max-w-16">
       {/* Sidebar Content */}
       <ul className="flex-1 px-4 py-4 items-center flex flex-col gap-12">
         {/* Home Icon */}

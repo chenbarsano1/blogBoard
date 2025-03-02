@@ -27,6 +27,7 @@ export const postsApiSlice = apiSlice.injectEndpoints({
         const params = new URLSearchParams({ page, limit, sort })
         return `${POSTS_URL}?${params.toString()}`
       },
+      // transformResponse: (response) => response.posts,
       providesTags: ['Post'], // Cache all posts
     }),
     updatePost: builder.mutation({

@@ -9,7 +9,10 @@ const PostCard = ({ post }) => {
     post.image && post.image.trim() !== '' ? post.image : fallbackImage
   console.log(imageSrc)
   return (
-    <div className="flex flex-col items-center h-[20vh] bg-white border border-gray-200 rounded-lg shadow-sm md:flex-row md:max-w-xl hover:bg-gray-100">
+    <Link
+      to={`/post/${post.slug}`}
+      className="flex flex-col overflow-hidden items-center h-[20vh] bg-white border border-gray-200 rounded-lg shadow-sm md:flex-row md:max-w-xl hover:bg-gray-100"
+    >
       {/* <Image
         src={post.image && post.image.trim() !== '' ? post.image : "fallback-image.png"} // Image path from DB
         className="object-cover w-full rounded-t-lg h-96 md:h-auto md:w-48 md:rounded-none md:rounded-s-lg"
@@ -24,14 +27,14 @@ const PostCard = ({ post }) => {
       )} */}
       <img
         src={import.meta.env.VITE_IMAGEKIT_URL_ENDPOINT + imageSrc}
-        className="object-cover max-h-full rounded-t-lg md:h-auto md:w-48 md:rounded-none md:rounded-s-lg"
+        className="w-56 h-56 object-cover rounded-t-lg md:rounded-none md:rounded-s-lg"
       />
       <div className="flex flex-col justify-between p-4 leading-normal">
         <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
           {post.title}
         </h5>
         <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">
-          By {post.creator.username}
+          By @{post.creator.username}
         </p>
         <p className="mb-3 font-normal text-gray-700 dark:text-gray-400">
           {post.desc}
@@ -47,7 +50,7 @@ const PostCard = ({ post }) => {
           ))}
         </div>
       </div>
-    </div>
+    </Link>
   )
 }
 

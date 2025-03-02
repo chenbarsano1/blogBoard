@@ -26,7 +26,7 @@ const Carousel = ({ posts }) => {
   return (
     <div className="relative w-full ">
       {/* Carousel wrapper */}
-      <div className="relative h-[50vh] bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center p-6">
+      <div className="relative h-[60vh] bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center p-6">
         {posts.map((post, index) => (
           <div
             key={post._id}

@@ -1,7 +1,8 @@
 import { IKImage } from 'imagekitio-react'
 
 const Image = ({ src, className, w, h, alt }) => {
-    console.log("final image source in image component", src)
+  if (!src) return null
+  console.log('final image source in image component', src)
   return (
     <IKImage
       urlEndpoint={import.meta.env.VITE_IMAGEKIT_URL_ENDPOINT}

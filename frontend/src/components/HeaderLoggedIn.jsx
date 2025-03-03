@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useLogoutMutation } from '../slices/usersApiSlice'
 import { clearCredentials } from '../slices/authSlice'
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
+import Search from './Search'
 
 const HeaderLoggedIn = () => {
   const dispatch = useDispatch()
@@ -31,12 +32,7 @@ const HeaderLoggedIn = () => {
       </Link>
       {/* Search Bar - Grows to fill space */}
       <div className="flex-1 relative">
-        <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-4 top-1/2 transform -translate-y-1/2" />
-        <input
-          type="text"
-          placeholder="Search..."
-          className="w-full pl-12 pr-4 py-2 text-black border border-gray-300 rounded-full focus:broder-black hover:border-black"
-        />
+        <Search />
       </div>
 
       {/* Logout Button */}

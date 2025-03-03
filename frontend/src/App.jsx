@@ -13,6 +13,7 @@ import EditProfile from './screens/EditProfile'
 import CreatePost from './screens/CreatePost'
 import YourPosts from './screens/YourPosts'
 import SavedPosts from './screens/SavedPosts'
+import SearchResults from './screens/SearchResults'
 
 const App = () => {
   const { userInfo } = useSelector((state) => state.auth)
@@ -34,6 +35,7 @@ const App = () => {
           <Route path="/create-post" element={userInfo ? <CreatePost /> : <Navigate to="/login" />} />
           <Route path="/your-posts" element={userInfo ? <YourPosts /> : <Navigate to="/login" />} />
           <Route path="/saved-posts" element={userInfo ? <SavedPosts /> : <Navigate to="/login" />} />
+          <Route path="/search" element={userInfo ? <SearchResults /> : <Navigate to="/login" />} />
         </Route>
       </Routes>
     </div>

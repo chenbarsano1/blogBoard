@@ -23,8 +23,9 @@ export const postsApiSlice = apiSlice.injectEndpoints({
       providesTags: (result, error, slug) => [{ type: 'Post', id: slug }], // Cache individual post
     }),
     getPosts: builder.query({
-      query: ({ page = 1, limit = 10, sort = 'newest' }) => {
+      query: ({ page = 1, limit = 10, sort = 'newest', search = '' }) => {
         const params = new URLSearchParams({ page, limit, sort })
+        if (search) params.append('search', search)
         return `${POSTS_URL}?${params.toString()}`
       },
       // transformResponse: (response) => response.posts,

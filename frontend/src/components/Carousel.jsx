@@ -34,12 +34,15 @@ const Carousel = ({ posts }) => {
               index === currentIndex ? 'opacity-100' : 'opacity-0'
             }`}
           >
-            <Image
-              src={post.image}
+            <img
+              src={import.meta.env.VITE_IMAGEKIT_URL_ENDPOINT + post.image}
               alt={post.title}
               className="absolute top-0 left-0 w-full h-full object-cover bg-cover bg-center"
             />
-            <h3 className="text-xl font-bold text-center relative">{post.title}</h3>
+            <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40"></div>
+            <h3 className="text-xl font-bold text-center relative">
+              {post.title}
+            </h3>
             <p className="text-gray-700 text-sm text-center mt-2 relative">
               {post.desc}
             </p>

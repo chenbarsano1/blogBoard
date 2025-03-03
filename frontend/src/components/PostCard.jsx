@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 // import { format } from 'timeago.js'
 import Image from './Image'
 import { SparklesIcon } from '@heroicons/react/24/solid'
+import { useNavigate } from 'react-router-dom'
 
 const PostCard = ({ post }) => {
   // const fallbackImage = 'fallback-image.png'
@@ -29,6 +30,10 @@ const PostCard = ({ post }) => {
         </div>
       )} */
   }
+  const navigate = useNavigate()
+  const handleTagClick = (tag) => {
+    navigate(`/search?q=${encodeURIComponent(tag)}`)
+  }
   return (
     <div className="max-w-md overflow-hidden rounded-xl bg-white shadow-md md:max-w-2xl">
       <div className="lg:flex ">
@@ -43,7 +48,10 @@ const PostCard = ({ post }) => {
         </div>
         <div className="flex flex-col justify-between">
           <div className="p-5">
-            <Link to={`/post/${post.slug}`} className="text-2xl font-bold tracking-tight text-gray-900 hover:text-gray-700">
+            <Link
+              to={`/post/${post.slug}`}
+              className="text-2xl font-bold tracking-tight text-gray-900 hover:text-gray-700"
+            >
               {post.title}
             </Link>
             <p className="text-xs text-gray-600">By @{post.creator.username}</p>
@@ -51,12 +59,13 @@ const PostCard = ({ post }) => {
           </div>
           <div className="flex flex-wrap gap-2 p-5">
             {post.tags?.map((tag, index) => (
-              <span
+              <button
                 key={index}
-                className="text-xs font-medium text-blue-600 bg-blue-100 px-2 py-1 rounded"
+                className="text-xs font-medium text-blue-600 bg-blue-100 px-2 py-1 rounded cursor-pointer hover:bg-blue-200"
+                onClick={() => handleTagClick(tag)}
               >
                 #{tag}
-              </span>
+              </button>
             ))}
           </div>
         </div>

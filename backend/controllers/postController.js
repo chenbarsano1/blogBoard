@@ -83,11 +83,23 @@ export const getPosts = async (req, res) => {
     const sort = req.query.sort // Sorting criteria
     const generatedByAI = req.query.generatedByAI // Filter AI-generated posts
 
-    if (tags) {
-      // Convert each tag into a case-insensitive regex pattern
-      const tagsArray = tags.split(',').map((tag) => new RegExp(tag, 'i'))
-      filter.$or = tagsArray.map((tag) => ({ tags: tag }))
+    if (search) {
+      const searchRegex = new RegExp(search, 'i'); // Case-insensitive search
+      filter.$or = [
+        { title: searchRegex },  // Search in title
+        { tags: searchRegex },   // Search in tags
+      ];
     }
+
+    // if (tags) {
+    //   // Convert each tag into a case-insensitive regex pattern
+    //   const tagsArray = tags.split(',').map((tag) => new RegExp(tag, 'i'))
+    //   filter.$or = tagsArray.map((tag) => ({ tags: tag }))
+    // }
+    // if (search) {
+    //   // Search for posts that contain the search keyword in their title
+    //   filter.title = new RegExp(search, 'i')
+    // }
 
     if (creator) {
       // Find the user with the given username
@@ -98,11 +110,6 @@ export const getPosts = async (req, res) => {
         // If the user is not found, return an empty array
         return res.status(200).json({ posts: [] })
       }
-    }
-
-    if (search) {
-      // Search for posts that contain the search keyword in their title
-      filter.title = new RegExp(search, 'i')
     }
 
     if (generatedByAI === 'true') {
@@ -175,7 +182,6 @@ export const getPost = async (req, res) => {
     res.status(500).json({ message: 'Server Error', error: error })
   }
 }
-
 
 // @desc    Delete a post by id
 // route    DELETE /api/posts/:id

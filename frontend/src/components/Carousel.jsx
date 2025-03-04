@@ -39,7 +39,7 @@ const Carousel = ({ posts }) => {
               alt={post.title}
               className="absolute top-0 left-0 w-full h-full object-cover bg-cover bg-center"
             />
-            <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40"></div>
             <h3 className="text-xl font-bold text-center relative">
               {post.title}
             </h3>

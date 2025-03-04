@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import {
   HomeIcon as HomeOutline,
   PlusCircleIcon as PlusOutline,
@@ -9,10 +9,29 @@ import {
   PlusCircleIcon as PlusSolid,
   BellIcon as BellSolid,
 } from '@heroicons/react/24/solid'
+import { ArrowRightStartOnRectangleIcon as LogoutOutline } from '@heroicons/react/24/outline'
+import { ArrowRightStartOnRectangleIcon as LogoutSolid } from '@heroicons/react/24/solid'
 import { Link } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import { useLogoutMutation } from '../slices/usersApiSlice'
+import { clearCredentials } from '../slices/authSlice'
 
 const SideBar = () => {
   const location = useLocation()
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const [logout] = useLogoutMutation()
+
+  const logoutHandler = async () => {
+    console.log('Logout button clicked!') // Debug log
+      try {
+        await logout().unwrap()
+        dispatch(clearCredentials())
+        navigate('/')
+      } catch (err) {
+        console.error(err)
+      }
+    }
 
   return (
     <nav className="h-full flex flex-col bg-white shadow-sm items-center max-w-16">
@@ -60,11 +79,14 @@ const SideBar = () => {
 
       {/* User Info Section */}
       <div className="border-t flex p-3 items-center">
-        <img
-          src="https://randomuser.me/api/portraits/men/1.jpg"
-          alt="User"
-          className="w-8 h-8 rounded-full"
-        />
+        <div className="relative group">
+          <button onClick={logoutHandler} className="w-8 h-8 cursor-pointer">
+            <LogoutOutline className="w-full h-full" />
+          </button>
+          <span className="absolute left-10 top-1/2 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+            Logout
+          </span>
+        </div>
       </div>
     </nav>
   )

@@ -1,6 +1,7 @@
 import asyncHandler from 'express-async-handler'
 import User from '../models/userModel.js'
 import generateToken from '../utils/generateToken.js'
+import { response } from 'express'
 
 // @desc    Auth user/set token
 // route    POST /api/users/auth
@@ -148,4 +149,81 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   })
 })
 
-export { loginUser, signupUser, logoutUser, getUserProfile, updateUserProfile }
+// @desc    Save a post
+// route    POST /api/users/save-post/:id
+// @access  Private
+const savePost = asyncHandler(async (req, res) => {
+  const postId = req.params.id
+
+  // Find the user who is trying to save the post
+  const user = await User.findById(req.user._id)
+
+  if (!user) {
+    res.status(404)
+    throw new Error('User not found')
+  }
+
+  // Check if the post is already saved
+  if (user.savedPosts.includes(postId)) {
+    res.status(400)
+    throw new Error('Post already saved')
+  }
+
+  // Add the post to the savedPosts array
+  user.savedPosts.push(postId)
+
+  await user.save()
+
+  res.status(200).json({ message: 'Post saved successfully' })
+})
+
+// @desc    Unsave a post
+// route    DELETE /api/users/unsave-post/:id
+// @access  Private
+const unsavePost = asyncHandler(async (req, res) => {
+  const postId = req.params.id
+
+  // Find the user who is trying to unsave the post
+  const user = await User.findById(req.user._id)
+
+  if (!user) {
+    res.status(404)
+    throw new Error('User not found')
+  }
+
+  // check if the post is in the saved posts array
+  if (!user.savedPosts.includes(postId)) {
+    res.status(400)
+    throw new Error('Post not found in saved posts')
+  }
+
+  // Remove the post from the savedPosts array
+  user.savedPosts = user.savedPosts.filter((id) => id.toString() !== postId)
+  await user.save()
+
+  res.status(200).json({ message: 'Post removed from saved posts' })
+})
+
+// @desc    Get saved posts
+// route    GET /api/users/saved-posts
+// @access  Private
+const getSavedPosts = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id).populate('savedPosts')
+  if (!user) {
+    res.status(404)
+    throw new Error('User not found')
+  }
+
+  res.status(200).json(user.savedPosts)
+})
+
+export {
+  loginUser,
+  signupUser,
+  logoutUser,
+  getUserProfile,
+  updateUserProfile,
+  savePost,
+  unsavePost,
+  getSavedPosts,
+}

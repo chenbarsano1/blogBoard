@@ -5,6 +5,9 @@ import {
   logoutUser,
   getUserProfile,
   updateUserProfile,
+  savePost,
+  unsavePost,
+  getSavedPosts,
 } from '../controllers/userController.js'
 import { protect } from '../middleware/authMiddleware.js'
 
@@ -17,5 +20,8 @@ router
   .route('/profile')
   .get(protect, getUserProfile)
   .put(protect, updateUserProfile)
+router.post('/save-post/:id', protect, savePost)
+router.delete('/unsave-post/:id', protect, unsavePost)
+router.get('/saved-posts', protect, getSavedPosts)
 
 export default router

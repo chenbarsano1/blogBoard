@@ -30,6 +30,27 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
+    savePost: builder.mutation({
+      query: (postId) => ({
+        url: `${USERS_URL}save-post/${postId}/`,
+        method: 'POST',
+      }),
+      invalidatesTags: ['SavedPosts'],
+    }),
+    unsavePost: builder.mutation({
+      query: (postId) => ({
+        url: `${USERS_URL}unsave-post/${postId}/`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['SavedPosts'],
+    }),
+    getSavedPosts: builder.query({
+      query: () => ({
+        url: `${USERS_URL}saved-posts/`,
+        method: 'GET',
+      }),
+      providesTags: ['SavedPosts'],
+    }),
   }),
 })
 
@@ -38,4 +59,7 @@ export const {
   useLogoutMutation,
   useSignupMutation,
   useUpdateUserMutation,
+  useSavePostMutation,
+  useUnsavePostMutation,
+  useGetSavedPostsQuery,
 } = usersApiSlice

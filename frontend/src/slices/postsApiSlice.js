@@ -1,3 +1,4 @@
+import { get } from 'mongoose'
 import { apiSlice } from './apiSlice'
 const POSTS_URL = '/posts/'
 
@@ -46,6 +47,10 @@ export const postsApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: (result, error, { id }) => [{ type: 'Post', id }], // Refresh the post after updating
     }),
+    getPostsByUser: builder.query({
+      query: (username) => `${POSTS_URL}?creator=${username}`,
+      providesTags: ['Posts']
+    })
   }),
 })
 
@@ -55,4 +60,5 @@ export const {
   useGetPostQuery,
   useGetPostsQuery,
   useUpdatePostMutation,
+  useGetPostsByUserQuery
 } = postsApiSlice

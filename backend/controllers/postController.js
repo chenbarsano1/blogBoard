@@ -84,11 +84,11 @@ export const getPosts = async (req, res) => {
     const generatedByAI = req.query.generatedByAI // Filter AI-generated posts
 
     if (search) {
-      const searchRegex = new RegExp(search, 'i'); // Case-insensitive search
+      const searchRegex = new RegExp(search, 'i') // Case-insensitive search
       filter.$or = [
-        { title: searchRegex },  // Search in title
-        { tags: searchRegex },   // Search in tags
-      ];
+        { title: searchRegex }, // Search in title
+        { tags: searchRegex }, // Search in tags
+      ]
     }
 
     // if (tags) {
@@ -132,11 +132,24 @@ export const getPosts = async (req, res) => {
           break
         case 'trending':
           // If multiple posts have the same visit count, they will be sorted by createdAt (newest first).
-          sortCriteria = { visit: -1, createdAt: -1 }
-          filter.createdAt = {
-            // trending: most visited in the last 7 days
-            $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+          // sortCriteria = { visit: -1, createdAt: -1 }
+          // filter.createdAt = {
+          //   // trending: most visited in the last 7 days
+          //   $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+          // }
+          const last7Days = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+
+          // Check if there are any trending posts in the last 7 days
+          const recentTrendingPosts = await Post.find({
+            visit: { $gt: 0 },
+            createdAt: { $gte: last7Days },
+          }).countDocuments()
+
+          if (recentTrendingPosts > 0) {
+            filter.createdAt = { $gte: last7Days }
           }
+
+          sortCriteria = { visit: -1, createdAt: -1 }
           break
         default:
           break

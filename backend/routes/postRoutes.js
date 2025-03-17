@@ -5,12 +5,14 @@ import {
   getPost,
   deletePost,
   updatePost,
+  uploadAuth
 } from '../controllers/postController.js'
 import { protect } from '../middleware/authMiddleware.js'
 import increaseVisitMiddleware from '../middleware/increaseVisitMiddleware.js'
 
 const router = express.Router()
 
+router.get('/upload-auth', uploadAuth)
 router.post('/', protect, createPost)
 router.get('/', getPosts)
 router.get('/:slug', increaseVisitMiddleware, getPost)

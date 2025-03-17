@@ -9,6 +9,7 @@ export const postsApiSlice = apiSlice.injectEndpoints({
         url: `${POSTS_URL}`,
         method: 'POST',
         body: data,
+        credentials: 'include',
       }),
       invalidatesTags: ['Post'], // Refresh posts list after creating a new post
     }),
@@ -24,13 +25,7 @@ export const postsApiSlice = apiSlice.injectEndpoints({
       providesTags: (result, error, slug) => [{ type: 'Post', id: slug }], // Cache individual post
     }),
     getPosts: builder.query({
-      query: ({
-        page = 1,
-        limit = 10,
-        sort = 'newest',
-        search = '',
-        
-      }) => {
+      query: ({ page = 1, limit = 10, sort = 'newest', search = '' }) => {
         const params = new URLSearchParams({ page, limit, sort })
         if (search) params.append('search', search)
         // if (tags) params.append('tags', tags)
@@ -49,8 +44,8 @@ export const postsApiSlice = apiSlice.injectEndpoints({
     }),
     getPostsByUser: builder.query({
       query: (username) => `${POSTS_URL}?creator=${username}`,
-      providesTags: ['Posts']
-    })
+      providesTags: ['Posts'],
+    }),
   }),
 })
 
@@ -60,5 +55,5 @@ export const {
   useGetPostQuery,
   useGetPostsQuery,
   useUpdatePostMutation,
-  useGetPostsByUserQuery
+  useGetPostsByUserQuery,
 } = postsApiSlice

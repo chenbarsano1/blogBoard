@@ -5,6 +5,7 @@ import connectDB from './config/db.js'
 import cookieParser from 'cookie-parser'
 // import authMiddleware from './middleware/authMiddleware.js'
 import postRoutes from './routes/postRoutes.js'
+import cors from 'cors'
 
 // set the server port
 const port = process.env.PORT || 5000
@@ -16,6 +17,14 @@ if (process.env.NODE_ENV !== 'test') {
 
 // initialize an Express application
 const app = express()
+
+const corsOptions = {
+  origin: process.env.CLIENT_URL,
+  methods: ['GET', 'PUT', 'POST', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}
+
+app.use(cors(corsOptions))
 
 // allow the Express application to accept JSON data in the body of the request
 app.use(express.json())

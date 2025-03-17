@@ -2,6 +2,7 @@ import mongoose from 'mongoose'
 import Post from '../models/postModel.js'
 import User from '../models/userModel.js'
 import jwt from 'jsonwebtoken'
+import ImageKit from 'imagekit'
 
 // @desc    Create a new post
 // route    POST /api/posts
@@ -270,6 +271,22 @@ export const updatePost = async (req, res) => {
     return res.status(403).json({ message: 'Not authorized' })
   } catch (error) {
     console.error(error)
+    res.status(500).json({ message: 'Server Error', error: error })
+  }
+}
+
+const imageKit = new ImageKit({
+  publicKey: process.env.IK_PUBLIC_KEY,
+  privateKey: process.env.IK_PRIVATE_KEY,
+  urlEndpoint: process.env.IK_URL_ENDPOINT,
+})
+
+export const uploadAuth = async (req, res) => {
+  try {
+    const result = imageKit.getAuthenticationParameters()
+    res.status(200).json(result)
+  } catch (error) {
+    console.error("Error getting authentication parameters:", error)
     res.status(500).json({ message: 'Server Error', error: error })
   }
 }

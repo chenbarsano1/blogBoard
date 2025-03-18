@@ -3,6 +3,9 @@ import { useSelector, useDispatch } from 'react-redux'
 import { useEffect } from 'react'
 import { useGetPostQuery } from '../slices/postsApiSlice'
 import Image from '../components/Image'
+import ReactQuill from 'react-quill'
+import 'react-quill/dist/quill.bubble.css'
+
 
 const SinglePostPage = () => {
   const { slug } = useParams()
@@ -44,7 +47,8 @@ const SinglePostPage = () => {
           </header>
 
           <div className="mx-auto mt-10 max-w-screen-md space-y-12 px-4 py-10 text-lg tracking-wide text-gray-700">
-            <p>{post.content}</p>
+            {/* <p>{post.content}</p> */}
+            <ReactQuill value={post.content} readOnly={true} theme="bubble" />
           </div>
         </article>
       </main>

@@ -34,3 +34,10 @@
 .ql-editor{
   border: none !important;
 }
+
+.ql-editor img {
+  max-width: 60% !important; /* Adjust the size as needed */
+  height: auto; /* Keeps the aspect ratio */
+  display: block; /* Prevents extra space below the image */
+  margin: 0 auto; /* Centers the image */
+}

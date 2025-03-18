@@ -1,7 +1,7 @@
 import 'react-quill/dist/quill.snow.css'
 import ReactQuill from 'react-quill'
 import { useEffect, useState } from 'react'
-import { PhotoIcon } from '@heroicons/react/24/outline'
+import { PhotoIcon, XCircleIcon } from '@heroicons/react/24/outline'
 import Upload from '../components/Upload'
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
@@ -13,6 +13,8 @@ const CreateOwnPost = () => {
   const [cover, setCover] = useState('') // Cover image URL for the post
   const [img, setImg] = useState('') //
   const [progress, setProgress] = useState(0) // Image upload progress
+  const [tags, setTags] = useState([]) // Tags for the post
+  const [tagInput, setTagInput] = useState('') // Tag input field value
 
   const { userInfo } = useSelector((state) => state.auth)
   const navigate = useNavigate()
@@ -20,7 +22,11 @@ const CreateOwnPost = () => {
   const [createPost, { isLoading, error }] = useCreatePostMutation()
 
   useEffect(() => {
-    img && setValue((prev) => prev + `<p><image src="${img.url}"/></p>`)
+    console.log('Uploaded image data:', img) // Debugging
+    img &&
+      setValue(
+        (prev) => prev + `<p><img src="${img.url}" alt="uploaded image"/></p>`
+      )
   }, [img])
 
   const handleSubmit = async (e) => {
@@ -33,19 +39,32 @@ const CreateOwnPost = () => {
 
     const formData = new FormData(e.target)
     const data = {
-      img: cover.filePath || '',
+      image: cover.url || '',
       title: formData.get('title'),
       desc: formData.get('desc'),
       content: value,
+      tags: tags,
     }
 
     try {
       const response = await createPost(data).unwrap()
       toast.success('Post created successfully!')
-      navigate(`/posts/${response.slug}`)
+      navigate(`/post/${response.slug}`)
     } catch (error) {
       toast.error('Failed to create post. Please try again.')
     }
+  }
+
+  const addTag = (e) => {
+    e.preventDefault()
+    if (tagInput.trim() && !tags.includes(tagInput.trim())) {
+      setTags([...tags, tagInput.trim()])
+      setTagInput('')
+    }
+  }
+
+  const removeTag = (tagToRemove) => {
+    setTags(tags.filter((tag) => tag !== tagToRemove))
   }
 
   return (
@@ -69,16 +88,51 @@ const CreateOwnPost = () => {
           name="desc"
           placeholder="A Short Description"
         />
+
+        {/* 🔹 Tags Input */}
+        <div className="flex flex-wrap gap-2">
+          {tags.map((tag, index) => (
+            <div
+              key={index}
+              className="flex items-center bg-gray-300 px-3 py-1 rounded-full"
+            >
+              <span>{tag}</span>
+              <XCircleIcon
+                className="w-4 h-4 ml-2 text-red-600 cursor-pointer"
+                onClick={() => removeTag(tag)}
+              />
+            </div>
+          ))}
+        </div>
+
+        {/* 🔹 Tag Input Field */}
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            className="p-2 border border-gray-300 rounded"
+            placeholder="Add a tag..."
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && addTag(e)}
+          />
+          <button
+            type="button"
+            className="px-3 py-1 bg-blue-600 text-white rounded"
+            onClick={addTag}
+          >
+            Add
+          </button>
+        </div>
+
         <div className="flex flex-1 ">
           <Upload type="image" setProgress={setProgress} setData={setImg}>
             🌆
           </Upload>
-
           <ReactQuill
             theme="snow"
             className="flex-1 rounded-xl bg-white shadow-md"
             value={value}
-            onChange={setValue}
+            onChange={(content) => setValue(content)}
             readOnly={0 < progress && progress < 100}
           />
         </div>

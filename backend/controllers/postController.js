@@ -43,6 +43,8 @@ export const createPost = async (req, res) => {
       counter++
     }
 
+    const imageFileName = req.body.image ? req.body.image.split('/').pop() : ''
+
     // Create a new post (supports AI-generated content)
     const newPost = new Post({
       creator: userId,
@@ -52,7 +54,7 @@ export const createPost = async (req, res) => {
       tags: req.body.tags || [],
       slug: slug,
       generatedByAI: req.body.generatedByAI || false,
-      image: req.body.image || '',
+      image: imageFileName,
     })
 
     // Save the post to the database
@@ -286,7 +288,7 @@ export const uploadAuth = async (req, res) => {
     const result = imageKit.getAuthenticationParameters()
     res.status(200).json(result)
   } catch (error) {
-    console.error("Error getting authentication parameters:", error)
+    console.error('Error getting authentication parameters:', error)
     res.status(500).json({ message: 'Server Error', error: error })
   }
 }

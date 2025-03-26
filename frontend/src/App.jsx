@@ -16,6 +16,7 @@ import SavedPosts from './screens/SavedPosts'
 import SearchResults from './screens/SearchResults'
 import SinglePostPage from './screens/SinglePostPage'
 import CreateOwnPost from './screens/CreateOwnPost'
+import GenerateAIPost from './screens/GenerateAIPost'
 
 const App = () => {
   const { userInfo } = useSelector((state) => state.auth)
@@ -40,6 +41,7 @@ const App = () => {
           <Route path="/search" element={userInfo ? <SearchResults /> : <Navigate to="/login" />} />
           <Route path="/post/:slug" element={userInfo ? <SinglePostPage /> : <Navigate to="/login" />} />
           <Route path="/create-own-post" element={userInfo ? <CreateOwnPost /> : <Navigate to="/login" />} />
+          <Route path="/generate-ai-post" element={userInfo ? <GenerateAIPost /> : <Navigate to="/login" />} />
         </Route>
       </Routes>
     </div>

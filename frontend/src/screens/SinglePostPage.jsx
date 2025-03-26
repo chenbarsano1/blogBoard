@@ -5,13 +5,14 @@ import { useGetPostQuery } from '../slices/postsApiSlice'
 import Image from '../components/Image'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.bubble.css'
-
+import MyDropdown from '@/components/MyDropdown'
+import PostDropdown from '@/components/PostDropdown'
 
 const SinglePostPage = () => {
   const { slug } = useParams()
   const { data: post, error, isLoading } = useGetPostQuery(slug)
 
-  if (isLoading) return <div>Loading...</div>
+  if (isLoading || !post) return <div>Loading...</div>
   if (error) return <div>{error}</div>
 
   return (
@@ -19,8 +20,12 @@ const SinglePostPage = () => {
       <main>
         <article>
           <header className="mx-auto max-w-screen-xl pt-28 text-center">
+          <div className='flex justify-end'>
+            <PostDropdown post={post} />
+          </div>
             <p className="text-gray-500">
-              Published on {new Date(post.createdAt).toLocaleDateString()} by @{post.creator?.username}
+              Published on {new Date(post.createdAt).toLocaleDateString()} by @
+              {post.creator?.username}
             </p>
             <h1 className="mt-2 text-3xl font-bold text-gray-900 sm:text-5xl">
               {post.title}
@@ -83,11 +88,11 @@ const SinglePostPage = () => {
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
-                    stroke-width="2"
+                    strokeWidth="2"
                   >
                     <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
                       d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"
                     />
                   </svg>
@@ -122,11 +127,11 @@ const SinglePostPage = () => {
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
-                    stroke-width="2"
+                    strokeWidth="2"
                   >
                     <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
                       d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"
                     />
                   </svg>
@@ -161,11 +166,11 @@ const SinglePostPage = () => {
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
-                    stroke-width="2"
+                    strokeWidth="2"
                   >
                     <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
                       d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"
                     />
                   </svg>

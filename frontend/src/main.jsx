@@ -5,6 +5,7 @@ import App from './App.jsx'
 import store from './store'
 import { Provider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
+import 'flowbite'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

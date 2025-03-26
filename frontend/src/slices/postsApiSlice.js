@@ -28,11 +28,35 @@ export const postsApiSlice = apiSlice.injectEndpoints({
       query: ({ page = 1, limit = 10, sort = 'newest', search = '' }) => {
         const params = new URLSearchParams({ page, limit, sort })
         if (search) params.append('search', search)
-        // if (tags) params.append('tags', tags)
         return `${POSTS_URL}?${params.toString()}`
       },
-      // transformResponse: (response) => response.posts,
-      providesTags: ['Post'], // Cache all posts
+      serializeQueryArgs: ({ endpointName, queryArgs }) => {
+        return `${endpointName}-${queryArgs.search}`
+      },
+      merge: (currentCache = { posts: [] }, newPosts) => {
+        const uniquePosts = [...currentCache.posts, ...newPosts.posts].reduce(
+          (acc, post) => {
+            if (!acc.some((p) => p._id === post._id)) acc.push(post)
+            return acc
+          },
+          []
+        )
+        return { posts: uniquePosts, hasMore: newPosts.hasMore }
+      },
+      forceRefetch: ({ currentArg, previousArg }) =>
+        currentArg?.page !== previousArg?.page ||
+        currentArg?.search !== previousArg?.search,
+      providesTags: (result) =>
+        result?.posts
+          ? [
+              ...result.posts.map(({ _id }) => ({ type: 'Post', id: _id })),
+              'Post',
+            ]
+          : ['Post'],
+    }),
+    getTrendingPosts: builder.query({
+      query: () => `${POSTS_URL}?page=1&limit=3&sort=trending`,
+      providesTags: ['TrendingPosts'],
     }),
     updatePost: builder.mutation({
       query: ({ id, data }) => ({
@@ -43,8 +67,49 @@ export const postsApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: (result, error, { id }) => [{ type: 'Post', id }], // Refresh the post after updating
     }),
     getPostsByUser: builder.query({
-      query: (username) => `${POSTS_URL}?creator=${username}`,
-      providesTags: ['Posts'],
+      query: ({ username, page = 1, limit = 10, sort = 'newest' }) => {
+        const params = new URLSearchParams({ 
+          creator: username, 
+          page, 
+          limit, 
+          sort 
+        })
+        return `${POSTS_URL}?${params.toString()}`
+      },
+      
+      // Unique cache key based on username and search/sort
+      serializeQueryArgs: ({ endpointName, queryArgs }) => {
+        return `${endpointName}-${queryArgs.username}-${queryArgs.sort}`
+      },
+      
+      // Merge function to combine posts
+      merge: (currentCache = { posts: [] }, newPosts) => {
+        const uniquePosts = [...currentCache.posts, ...newPosts.posts].reduce(
+          (acc, post) => {
+            if (!acc.some((p) => p._id === post._id)) acc.push(post)
+            return acc
+          },
+          []
+        )
+    
+        return { 
+          posts: uniquePosts, 
+          hasMore: newPosts.hasMore 
+        }
+      },
+      
+      // Control when to refetch
+      forceRefetch: ({ currentArg, previousArg }) =>
+        currentArg?.page !== previousArg?.page,
+      
+      // Provide tags for cache invalidation
+      providesTags: (result) =>
+        result?.posts
+          ? [
+              ...result.posts.map(({ _id }) => ({ type: 'Post', id: _id })),
+              'Post',
+            ]
+          : ['Post'],
     }),
   }),
 })
@@ -56,4 +121,5 @@ export const {
   useGetPostsQuery,
   useUpdatePostMutation,
   useGetPostsByUserQuery,
+  useGetTrendingPostsQuery,
 } = postsApiSlice

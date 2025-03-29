@@ -1,6 +1,13 @@
 import FormSection from '@/components/FormSection'
 import OutputSection from '@/components/OutputSection'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useSelector } from 'react-redux'
+import {
+  useCreatePostMutation,
+  useGeneratePostMutation,
+} from '../slices/postsApiSlice'
+import { toast } from 'react-toastify'
 
 const GenerateAIPost = () => {
   const [postData, setPostData] = useState({
@@ -14,32 +21,36 @@ const GenerateAIPost = () => {
 
   const [generatedContent, setGeneratedContent] = useState('')
 
+  const [generatePost, { isLoading: isGenerating }] = useGeneratePostMutation()
+
+  const { userInfo } = useSelector((state) => state.auth)
+  const navigate = useNavigate()
+  const [createPost, { isLoading, error }] = useCreatePostMutation()
+
   const handleGeneratePost = async (e) => {
-    // try {
-    //   const response = await fetch('/api/generate-post', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify({ prompt }),
-    //   })
-    //   const data = await response.json()
-    //   setGeneratedContent(data.generatedText) // Update editor with AI response
-    // } catch (error) {
-    //   console.error('Error generating post:', error)
-    // }
     e.preventDefault()
+    
     if (!postData.prompt) {
       toast.error('Please enter a prompt!')
       return
     }
 
-    // Simulate generating content by appending "hello" to the prompt
-    const simulatedGeneratedContent = `${postData.prompt} hello`
-
-    // Update the generated content in the state
-    setGeneratedContent(simulatedGeneratedContent)
+    try {
+      const response = await generatePost(postData.prompt).unwrap()
+      setGeneratedContent(response.generatedText)
+      toast.success('Post generated successfully!')
+    } catch (error) {
+      console.error('Error generating post:', error)
+      toast.error(error.data?.message || 'Failed to generate post.')
+    }
   }
 
   const handlePublish = async () => {
+    if (!userInfo) {
+      toast.error('Please login to publish a post')
+      navigate('/login')
+      return
+    }
     if (!postData.title || !postData.description || !generatedContent) {
       toast.error('Title, description, and content are required!')
       return
@@ -47,10 +58,11 @@ const GenerateAIPost = () => {
 
     const postDetails = {
       title: postData.title,
-      description: postData.description,
+      desc: postData.description,
       tags: postData.tags,
-      cover: postData.cover?.url || '',
+      image: postData.cover?.url || '',
       content: generatedContent,
+      generatedByAI: true,
     }
 
     try {
@@ -71,7 +83,7 @@ const GenerateAIPost = () => {
       />
       <OutputSection
         generatedContent={generatedContent}
-        setContent={setGeneratedContent}
+        setGeneratedContent={setGeneratedContent}
         handlePublish={handlePublish}
       />
     </div>

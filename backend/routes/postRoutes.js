@@ -5,7 +5,8 @@ import {
   getPost,
   deletePost,
   updatePost,
-  uploadAuth
+  uploadAuth,
+  generatePost
 } from '../controllers/postController.js'
 import { protect } from '../middleware/authMiddleware.js'
 import increaseVisitMiddleware from '../middleware/increaseVisitMiddleware.js'
@@ -18,5 +19,6 @@ router.get('/', getPosts)
 router.get('/:slug', increaseVisitMiddleware, getPost)
 router.delete('/:id', protect, deletePost)
 router.put('/:id', protect, updatePost)
+router.post('/generate-post', generatePost)
 
 export default router

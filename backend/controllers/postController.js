@@ -3,6 +3,7 @@ import Post from '../models/postModel.js'
 import User from '../models/userModel.js'
 import jwt from 'jsonwebtoken'
 import ImageKit from 'imagekit'
+import { GoogleGenAI } from '@google/genai'
 
 // @desc    Create a new post
 // route    POST /api/posts
@@ -273,6 +274,36 @@ export const updatePost = async (req, res) => {
     return res.status(403).json({ message: 'Not authorized' })
   } catch (error) {
     console.error(error)
+    res.status(500).json({ message: 'Server Error', error: error })
+  }
+}
+
+
+
+// @desc    Generate a new post
+// route    POST /api/posts/generated
+const ai = new GoogleGenAI ({apiKey: process.env.GEMINI_API_KEY})
+export const generatePost = async (req, res) => {
+  try {
+    const { prompt } = req.body
+
+    if (!prompt) {
+      return res.status(400).json({ message: 'Prompt is required' })
+    }
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.0-flash',
+      contents: prompt,
+      maxOutputTokens: 1000,
+      temperature: 0.7,
+    })
+    const generatedText = response.text
+    if (!generatedText) {
+      return res.status(500).json({ message: 'Error generating post' })
+    }
+    res.status(200).json({ generatedText })
+  } catch (error) {
+    console.error('Error generating post:', error)
     res.status(500).json({ message: 'Server Error', error: error })
   }
 }

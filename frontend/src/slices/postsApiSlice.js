@@ -13,6 +13,13 @@ export const postsApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['Post'], // Refresh posts list after creating a new post
     }),
+    generatePost: builder.mutation({
+      query: (prompt) => ({
+        url: `${POSTS_URL}generate-post`,
+        method: 'POST',
+        body: { prompt },
+      }),
+    }),
     deletePost: builder.mutation({
       query: (id) => ({
         url: `${POSTS_URL}${id}`,
@@ -68,20 +75,20 @@ export const postsApiSlice = apiSlice.injectEndpoints({
     }),
     getPostsByUser: builder.query({
       query: ({ username, page = 1, limit = 10, sort = 'newest' }) => {
-        const params = new URLSearchParams({ 
-          creator: username, 
-          page, 
-          limit, 
-          sort 
+        const params = new URLSearchParams({
+          creator: username,
+          page,
+          limit,
+          sort,
         })
         return `${POSTS_URL}?${params.toString()}`
       },
-      
+
       // Unique cache key based on username and search/sort
       serializeQueryArgs: ({ endpointName, queryArgs }) => {
         return `${endpointName}-${queryArgs.username}-${queryArgs.sort}`
       },
-      
+
       // Merge function to combine posts
       merge: (currentCache = { posts: [] }, newPosts) => {
         const uniquePosts = [...currentCache.posts, ...newPosts.posts].reduce(
@@ -91,17 +98,17 @@ export const postsApiSlice = apiSlice.injectEndpoints({
           },
           []
         )
-    
-        return { 
-          posts: uniquePosts, 
-          hasMore: newPosts.hasMore 
+
+        return {
+          posts: uniquePosts,
+          hasMore: newPosts.hasMore,
         }
       },
-      
+
       // Control when to refetch
       forceRefetch: ({ currentArg, previousArg }) =>
         currentArg?.page !== previousArg?.page,
-      
+
       // Provide tags for cache invalidation
       providesTags: (result) =>
         result?.posts
@@ -122,4 +129,5 @@ export const {
   useUpdatePostMutation,
   useGetPostsByUserQuery,
   useGetTrendingPostsQuery,
+  useGeneratePostMutation,
 } = postsApiSlice

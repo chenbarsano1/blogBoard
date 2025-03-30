@@ -14,6 +14,9 @@ BlogBoard is a modern, user-friendly blogging platform built with the MERN stack
 - ✅ **Authentication**: Secure login and signup using JWT authentication.
 - ⚡ **Modern UI**: Styled with Tailwind CSS and Daisy UI components.
 
+  ![image](https://github.com/user-attachments/assets/66af94d5-19a1-4099-9aa0-cb59be29dfc8)
+
+
 ## 🛠 Tech Stack
 
 ![MERN Stack](path/to/mern-stack-image.png)

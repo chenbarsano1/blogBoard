@@ -19,7 +19,7 @@ const YourPosts = () => {
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-4">Your Posts</h2>
+      <h2 className="text-xl font-bold mb-4 mt-10">Your Posts</h2>
       {posts?.length === 0 ? (
         <p>No posts yet</p>
       ) : (

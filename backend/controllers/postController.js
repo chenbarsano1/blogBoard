@@ -279,7 +279,6 @@ export const updatePost = async (req, res) => {
 }
 
 
-
 // @desc    Generate a new post
 // route    POST /api/posts/generated
 const ai = new GoogleGenAI ({apiKey: process.env.GEMINI_API_KEY})

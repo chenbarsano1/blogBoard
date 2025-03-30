@@ -54,11 +54,13 @@ const SideBar = () => {
 
         {/* Create Icon */}
         <li className="relative group">
-          {location.pathname === '/create' ? (
+        <Link to="/create-post">
+          {location.pathname === '/create-post' ? (
             <PlusSolid className="size-8 cursor-pointer" />
           ) : (
             <PlusOutline className="size-8 cursor-pointer" />
           )}
+          </Link>
           <span className="absolute left-10 top-1/2 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
             Create
           </span>

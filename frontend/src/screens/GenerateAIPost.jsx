@@ -20,6 +20,7 @@ const GenerateAIPost = () => {
   })
 
   const [generatedContent, setGeneratedContent] = useState('')
+  const [isGeneratingComplete, setIsGeneratingComplete] = useState(false)
 
   const [generatePost, { isLoading: isGenerating }] = useGeneratePostMutation()
 
@@ -36,9 +37,10 @@ const GenerateAIPost = () => {
     }
 
     try {
+      setIsGeneratingComplete(false)
       const response = await generatePost(postData.prompt).unwrap()
       setGeneratedContent(response.generatedText)
-      toast.success('Post generated successfully!')
+      toast.success('Post generated successfully! Now typing...')
     } catch (error) {
       console.error('Error generating post:', error)
       toast.error(error.data?.message || 'Failed to generate post.')
@@ -80,6 +82,7 @@ const GenerateAIPost = () => {
         postData={postData}
         setPostData={setPostData}
         handleGeneratePost={handleGeneratePost}
+        isGenerating={isGenerating}
       />
       <OutputSection
         generatedContent={generatedContent}

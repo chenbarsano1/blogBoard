@@ -1,12 +1,9 @@
 import { useParams } from 'react-router-dom'
-import { useSelector, useDispatch } from 'react-redux'
-import { useEffect } from 'react'
 import { useGetPostQuery } from '../slices/postsApiSlice'
 import Image from '../components/Image'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.bubble.css'
-import MyDropdown from '@/components/MyDropdown'
-import PostDropdown from '@/components/PostDropdown'
+import DaisyDropdown from '@/components/DaisyDropdown'
 
 const SinglePostPage = () => {
   const { slug } = useParams()
@@ -21,7 +18,7 @@ const SinglePostPage = () => {
         <article>
           <header className="mx-auto max-w-screen-xl pt-28 text-center">
           <div className='flex justify-end'>
-            <PostDropdown post={post} />
+            <DaisyDropdown post={post} />
           </div>
             <p className="text-gray-500">
               Published on {new Date(post.createdAt).toLocaleDateString()} by @

@@ -24,7 +24,7 @@ const Carousel = ({ posts }) => {
   console.log(posts.map((post) => post.image))
 
   return (
-    <div className="relative w-full ">
+    <div className="relative w-full">
       {/* Carousel wrapper */}
       <div className="relative h-[60vh] bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center p-6">
         {posts.map((post, index) => (
@@ -38,30 +38,30 @@ const Carousel = ({ posts }) => {
               src={post.image}
               className="absolute top-0 left-0 w-full h-full object-cover bg-cover bg-center"
             />
-            {/* <img
-              src={import.meta.env.VITE_IMAGEKIT_URL_ENDPOINT + post.image}
-              alt={post.title}
-              className="absolute top-0 left-0 w-full h-full object-cover bg-cover bg-center"
-            /> */}
+            {/* Stronger overlay gradient for better text contrast */}
             <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40"></div>
-            <h3 className="text-xl font-bold text-center relative">
-              {post.title}
-            </h3>
-            <p className="text-gray-700 text-sm text-center mt-2 relative">
-              {post.desc}
-            </p>
-            <p className="text-gray-500 text-xs mt-1 relative">
-              By @{post.creator?.username}
-            </p>
-            <div className="mt-2 flex flex-wrap justify-center relative">
-              {post.tags.map((tag, i) => (
-                <span
-                  key={i}
-                  className="bg-gray-200 text-gray-600 text-xs rounded-full px-2 py-1 mx-1"
-                >
-                  #{tag}
-                </span>
-              ))}
+            
+            {/* Content container with text shadow and padding */}
+            <div className="relative max-w-lg p-6 rounded-lg text-center">
+              <h3 className="text-xl font-bold text-white text-shadow-lg">
+                {post.title}
+              </h3>
+              <p className="text-white text-sm mt-2 text-shadow-sm">
+                {post.desc}
+              </p>
+              <p className="text-gray-200 text-xs mt-1 text-shadow-sm">
+                By @{post.creator?.username}
+              </p>
+              <div className="mt-2 flex flex-wrap justify-center">
+                {post.tags.map((tag, i) => (
+                  <span
+                    key={i}
+                    className="bg-black/40 backdrop-blur-sm text-white text-xs rounded-full px-2 py-1 mx-1 shadow-md"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
         ))}
@@ -73,7 +73,7 @@ const Carousel = ({ posts }) => {
           <button
             key={index}
             className={`w-3 h-3 rounded-full ${
-              index === currentIndex ? 'bg-gray-800' : 'bg-gray-400'
+              index === currentIndex ? 'bg-white' : 'bg-gray-400'
             }`}
             onClick={() => goToSlide(index)}
           />
@@ -85,9 +85,9 @@ const Carousel = ({ posts }) => {
         className="absolute top-0 left-0 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none"
         onClick={prevSlide}
       >
-        <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gray-400 hover:bg-gray-600">
+        <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 backdrop-blur-sm">
           <svg
-            className="w-4 h-4 text-white dark:text-gray-800"
+            className="w-4 h-4 text-white"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 6 10"
@@ -108,9 +108,9 @@ const Carousel = ({ posts }) => {
         className="absolute top-0 right-0 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none"
         onClick={nextSlide}
       >
-        <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gray-400 hover:bg-gray-600">
+        <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 backdrop-blur-sm">
           <svg
-            className="w-4 h-4 text-white dark:text-gray-800"
+            className="w-4 h-4 text-white"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 6 10"

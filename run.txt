@@ -1,3 +1,0 @@
-backend: npm run server
-client: npm run client
-both: npm run dev

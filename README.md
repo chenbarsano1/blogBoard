@@ -16,15 +16,9 @@ BlogBoard is a modern, user-friendly blogging platform built with the MERN stack
 
   ![image](https://github.com/user-attachments/assets/9bb298e8-768c-40c3-a75b-c9295e8f1284)
   ![image](https://github.com/user-attachments/assets/66af94d5-19a1-4099-9aa0-cb59be29dfc8)
-
-
   ![image](https://github.com/user-attachments/assets/87438238-72a9-4769-b596-27db6b6f8e30)
-
   ![image](https://github.com/user-attachments/assets/c7eb2a70-a36a-429c-aba4-5035827be69d)
   ![image](https://github.com/user-attachments/assets/0cda5d60-7d17-4448-affc-7100c20ca037)
-
-
-
   ![image](https://github.com/user-attachments/assets/d6a3ccf1-f664-46e9-b541-b04f0c1ff07d)
 
 

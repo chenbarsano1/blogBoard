@@ -1,6 +1,6 @@
 # BlogBoard
 
-![BlogBoard Banner](path/to/banner-image.png)
+![ChatGPT Image Apr 9, 2025, 09_32_28 AM](https://github.com/user-attachments/assets/03ef9ae0-5a7c-4313-9a13-ebe0b1d6bb16)
 
 BlogBoard is a modern, user-friendly blogging platform built with the MERN stack. It allows users to create, share, and engage with blog posts in a visually appealing interface inspired by Pinterest. Users can write their own posts, generate AI-assisted content, and save posts.
 

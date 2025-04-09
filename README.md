@@ -28,8 +28,6 @@ BlogBoard is a modern, user-friendly blogging platform built with the MERN stack
 
 ## 🛠 Tech Stack
 
-![MERN Stack](path/to/mern-stack-image.png)
-
 - **Frontend**: React, Redux Toolkit, Tailwind CSS
 - **Backend**: Node.js, Express.js, MongoDB
 - **State Management**: Redux Toolkit
